@@ -1,0 +1,54 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+  {{ product.name }}
+{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <!-- Фото товару -->
+  <div class="col-md-5">
+      <img src="{{ product.image.url }}" class="img-fluid rounded mb-3" alt="{{ product.name }}">
+  </div>
+
+  <!-- Інформація про товар -->
+  <div class="col-md-7">
+    <h2>{{ product.name }}</h2>
+    <p class="text-muted">Категорія: <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></p>
+    <p>{{ product.description|default:"Опис відсутній." }}</p>
+    <h4 class="text-success mb-3">{{ product.price }} ₴</h4>
+
+    <!-- Форма для додавання в корзину -->
+{#    <form action="{% url 'cart:cart_add' product.id %}" method="post" class="d-flex align-items-center gap-2">#}
+      {% csrf_token %}
+      <input type="number" name="quantity" value="1" min="1" class="form-control w-auto" style="max-width: 80px;">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-cart-plus"></i> Додати в корзину
+      </button>
+    </form>
+  </div>
+</div>
+
+<hr>
+
+<!-- Схожі товари -->
+<div class="mt-4">
+  <h4>Схожі товари</h4>
+  <div class="row">
+    {% for item in related_products %}
+    <div class="col-md-3 mb-4">
+      <div class="card h-100">
+          <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+        <div class="card-body text-center">
+          <h6 class="card-title text-truncate">{{ item.name }}</h6>
+          <p class="fw-bold mb-2">{{ item.price }} ₴</p>
+          <a href="{% url 'main:product_detail' item.id item.slug %}" class="btn btn-outline-primary btn-sm">Детальніше</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p>Схожих товарів немає.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}
