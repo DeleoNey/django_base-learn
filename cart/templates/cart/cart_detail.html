@@ -1,0 +1,76 @@
+{% extends "main/base.html" %}
+
+{% block title %}Корзина{% endblock title %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Моя корзина</h2>
+
+  {% if cart %}
+  <div class="table-responsive">
+    <table class="table table-striped align-middle text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>Товар</th>
+          <th>Кількість</th>
+          <th>Ціна за одиницю</th>
+          <th>Разом</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart %}
+        {% with product=item.product %}
+        <tr>
+          <td>
+            <a href="{% url 'main:product_detail' product.id product.slug %}">
+              {{ product.name }}
+            </a>
+          </td>
+          <td>
+            <!-- Форма для оновлення кількості -->
+            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="d-flex justify-content-center">
+              {% csrf_token %}
+              {{ item.update_quantity_form.quantity }}
+              {{ item.update_quantity_form.override }}
+              <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Оновити</button>
+            </form>
+          </td>
+          <td>{{ item.price }} ₴</td>
+          <td>{{ item.total_price }} ₴</td>
+          <td>
+            <!-- Кнопка видалення -->
+            <form action="{% url 'cart:cart_remove' product.id %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger">Видалити</button>
+            </form>
+          </td>
+        </tr>
+        {% endwith %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Підсумок -->
+  <div class="text-end mt-3">
+    <h4>Всього: <span class="text-success">{{ cart.get_total_price }} ₴</span></h4>
+  </div>
+
+  <div class="d-flex justify-content-between mt-4">
+    <a href="{% url 'main:product_list' %}" class="btn btn-outline-secondary">
+      Продовжити покупки
+    </a>
+    <a href="#" class="btn btn-success">Оформити замовлення</a>
+  </div>
+
+  {% else %}
+  <div class="alert alert-warning text-center" role="alert">
+    Ваша корзина порожня 🙁
+  </div>
+  <div class="text-center">
+    <a href="{% url 'main:product_list' %}" class="btn btn-primary">Перейти до покупок</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}
